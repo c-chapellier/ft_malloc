@@ -1,15 +1,15 @@
-#include "ft_libc.h"
+#include "libc.h"
 
 static void hexdump(void *addr, size_t size, char *prefix ,int flags)
 {
     char buf[8 * 80];
-    int nchar_printed;
+    size_t nchar_printed;
 
     buf[0] = '\0';
     if (flags & SHOW_ALLOC_MEM_EX_QUIET) nchar_printed = 16;
-    else if (flags & SHOW_ALLOC_MEM_EX_FULL) nchar_printed = INT32_MAX;
+    else if (flags & SHOW_ALLOC_MEM_EX_FULL) nchar_printed = INT_MAX;
     else nchar_printed = 16 * 8;
-    for (int i = 0; i < size && i < nchar_printed - 1; ++i)
+    for (size_t i = 0; i < size && i < nchar_printed - 1; ++i)
     {
         if (i % 16 == 0) sprintf(buf, "%s\n%s%p    %02x ", buf, prefix, &((char *)addr)[i], ((char *)addr)[i]);
         else if (i % 8 == 7) sprintf(buf, "%s%02x    ", buf, ((char *)addr)[i]);

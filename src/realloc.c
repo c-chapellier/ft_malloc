@@ -1,4 +1,4 @@
-#include "ft_libc.h"
+#include "libc.h"
 
 #define NOT_FOUND           0
 #define ENOUGH_SPACE        1
@@ -25,7 +25,7 @@ static int check_zone(struct zone_t *first, void *addr, size_t size)
     return NOT_FOUND;
 }
 
-void *ft_realloc(void *ptr, size_t size)
+void *realloc(void *ptr, size_t size)
 {
     int rc;
 
@@ -54,5 +54,7 @@ void *ft_realloc(void *ptr, size_t size)
             }
         }
     }
-    return ft_malloc(size);
+    if (rc == NOT_FOUND)
+        abort();
+    return malloc(size);
 }

@@ -1,24 +1,12 @@
-#include "src/ft_libc.h"
+#include "src/libc.h"
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 
-// #define VERIFY	1
-#ifdef VERIFY
-#define MALLOC	malloc	
-#define REALLOC	realloc	
-#define FREE	free
-#else
-#define MALLOC	ft_malloc
-#define REALLOC	ft_realloc
-#define FREE	ft_free
-#endif
-
 #define FAIL		RED "[FAIL]" RESET
 #define SUCCESS		GREEN "[SUCCESS]" RESET
 #define WARNING		YELLOW "[WARNING]" RESET
-
-int main2();
 
 void print_signal(int signal)
 {
@@ -134,7 +122,7 @@ static void test_malloc_n(const char *name, int size)
 {
 	char *ft_str, *str;
 
-	ft_str = MALLOC(size);
+	ft_str = malloc(size);
 	str = malloc(size);
 	if (str == NULL)
 	{
@@ -160,13 +148,13 @@ static void test_malloc_n(const char *name, int size)
 	if (strcmp(ft_str, str) != 0)
 	{
 		printf(FAIL " %s%d: %.20s != %.20s\n", name, size, ft_str, str);
-		FREE(ft_str);
+		free(ft_str);
 		free(str);
 	}
 	else
 	{
 		printf(SUCCESS " %s%d : %.20s == %.20s\n", name, size, ft_str, str);
-		// FREE(ft_str);
+		// free(ft_str);
 		free(str);
 	}
 }
@@ -188,7 +176,7 @@ void test_malloc_2(const char *name, int n)
 	char *str;
 
 	(void)n;
-	str = MALLOC(0);
+	str = malloc(0);
 	if (str == NULL)
 	{
 		printf(FAIL " %s\n", name);
@@ -205,7 +193,7 @@ void test_malloc_3(const char *name, int n)
 	(void)n;
 	for (int i = 0; i < m; ++i)
 	{
-		str[i] = MALLOC(99);
+		str[i] = malloc(99);
 		if (str[i] == NULL)
 		{
 			printf(FAIL " %s\n", name);
@@ -216,7 +204,7 @@ void test_malloc_3(const char *name, int n)
 	// show_alloc_mem();
 	for (int i = 0; i < m; ++i)
 	{
-		FREE(str[i]);
+		free(str[i]);
 	}
 	printf(SUCCESS " %s\n", name);
 }
@@ -227,20 +215,20 @@ void test_free_1(const char *name, int n)
 
 	(void)name;
 	(void)n;
-	str = MALLOC(10);
+	str = malloc(10);
 	if (str == NULL)
 	{
 		printf("real malloc error\n");
 		exit(-1);
 	}
-	FREE(str);
-	FREE(str);
+	free(str);
+	free(str);
 }
 
 void test_free_2(const char *name, int n)
 {
 	(void)n;
-	FREE(NULL);
+	free(NULL);
 	printf(SUCCESS " %s\n", name);
 }
 
@@ -250,7 +238,7 @@ void test_free_3(const char *name, int n)
 
 	(void)n;
 	(void)name;
-	FREE(str);
+	free(str);
 }
 
 void test_free_4(const char *name, int n)
@@ -259,7 +247,57 @@ void test_free_4(const char *name, int n)
 
 	(void)n;
 	(void)name;
-	FREE(str);
+	free(str);
+}
+
+void test_free_5(const char *name, int n)
+{
+	char *str;
+
+	(void)name;
+	(void)n;
+	str = malloc(10);
+	if (str == NULL)
+	{
+		printf("real malloc error\n");
+		exit(-1);
+	}
+	free(str + 5);
+	printf(SUCCESS " %s\n", name);
+}
+
+void test_realloc_free_1(const char *name, int n)
+{
+	char *str;
+
+	(void)name;
+	(void)n;
+	str = malloc(10);
+	if (str == NULL)
+	{
+		printf("real malloc error\n");
+		exit(-1);
+	}
+	free(str);
+	if (realloc((void *)str, 10) != NULL) {}
+	printf(SUCCESS " %s\n", name);
+}
+
+void test_realloc_free_2(const char *name, int n)
+{
+	char *str;
+
+	(void)name;
+	(void)n;
+	str = malloc(10);
+	if (str == NULL)
+	{
+		printf("real malloc error\n");
+		exit(-1);
+	}
+	free(str);
+	if (realloc((void *)str + 5, 10) != NULL) {}
+	printf(SUCCESS " %s\n", name);
 }
 
 void test_realloc_1(const char *name, int n)
@@ -267,15 +305,15 @@ void test_realloc_1(const char *name, int n)
 	char *str, *str2;
 
 	(void)n;
-   	str = (char *) MALLOC(15);
-   	str2 = (char *) REALLOC(str, 25);
+   	str = (char *) malloc(15);
+   	str2 = (char *) realloc(str, 25);
 	if (str2 != str)
 	{
    		printf(FAIL " %s: %p != %p -> a small change realloc memory\n", name, str, str2);
-		FREE(str2);
+		free(str2);
 		return ;
 	}
-	FREE(str2);
+	free(str2);
 	printf(SUCCESS " %s: %p == %p -> a small change doesn't realloc memory\n", name, str, str2);
 }
 
@@ -285,15 +323,15 @@ void test_realloc_2(const char *name, int n)
 	char *str, *str2;
 
 	(void)n;
-   	str = (char *) MALLOC(15);
-   	str2 = (char *) REALLOC(str, 14 + m);
+   	str = (char *) malloc(15);
+   	str2 = (char *) realloc(str, 14 + m);
 	if (str2 == str)
 	{
    		printf(WARNING " %s: %p == %p -> a big change doesn't realloc memory\n", name, str, str2);
-		FREE(str2);
+		free(str2);
 		return ;
 	}
-	FREE(str2);
+	free(str2);
 	printf(SUCCESS " %s: %p != %p -> a bif change realloc memory\n", name, str, str2);
 }
 
@@ -366,6 +404,9 @@ int main()
 	env_test("test_free_2", 0, test_free_2, 0);
 	env_test("test_free_3", 0, test_free_3, SIGABRT);
 	env_test("test_free_4", 0, test_free_4, SIGABRT);
+	env_test("test_free_5", 0, test_free_5, SIGABRT);
+	env_test("test_realloc_free_1", 0, test_realloc_free_1, SIGABRT);
+	env_test("test_realloc_free_2", 0, test_realloc_free_2, SIGABRT);
 	env_test("test_realloc_1", 0, test_realloc_1, 0);
 	env_test("test_realloc_2", 0, test_realloc_2, 0);
 	// system("leaks a.out");

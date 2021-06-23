@@ -1,4 +1,4 @@
-#include "ft_libc.h"
+#include "libc.h"
 
 static void dealloc(void *addr, size_t size)
 {
@@ -48,7 +48,7 @@ static int check_zone(struct zone_t *first, void *addr)
     return 0;
 }
 
-void ft_free(void *addr)
+void free(void *addr)
 {
     if (addr == NULL) return ;
     if (check_zone(mem.tiny, addr) == 1) return ;

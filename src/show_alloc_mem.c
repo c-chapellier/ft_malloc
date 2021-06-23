@@ -1,4 +1,4 @@
-#include "ft_libc.h"
+#include "libc.h"
 
 void show_alloc_mem()
 {

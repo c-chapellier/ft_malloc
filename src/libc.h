@@ -1,17 +1,14 @@
-#ifndef FT_MALLOC_H
-#define FT_MALLOC_H
+#ifndef MALLOC_H
+#define MALLOC_H
 
 #include <stdio.h>
 #include <errno.h>
-#include <sys/mman.h>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <sys/resource.h>
-
-#ifndef DEBUG
-#define DEBUG       0
-#endif
-#define DPRINTF(f_, ...) if (DEBUG) printf((f_), ##__VA_ARGS__)
+#include <pthread.h>
 
 #define RESET       "\e[0;0m"
 #define BLACK       "\e[0;30m"
@@ -22,6 +19,11 @@
 #define MAGENTA     "\e[0;35m"
 #define CYAN        "\e[0;36m"
 #define WHITE       "\e[0;37m"
+
+#define MARGIN      1.2 // allocate 20% more than requested
+#define MIN_MARGIN  50 // allocate minimum 50 bytes more than requested
+#define ZONE_N      100
+#define ZONE_M      1000
 
 #define SHOW_ALLOC_MEM_EX_QUIET     0x01
 #define SHOW_ALLOC_MEM_EX_STANDARD  0x02
@@ -55,9 +57,9 @@ struct mem_t
 
 extern struct mem_t mem;
 
-void	ft_free(void *ptr);
-void	*ft_malloc(size_t size);
-void	*ft_realloc(void *ptr, size_t size);
+void	free(void *ptr);
+void	*malloc(size_t size);
+void	*realloc(void *ptr, size_t size);
 void    show_alloc_mem();
 void    show_alloc_mem_ex();
 
