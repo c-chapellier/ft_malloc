@@ -69,17 +69,32 @@ static int check_zone(struct zone_t *first, void *addr)
 
 void free(void *addr)
 {
-    if (addr == NULL) return ;
-    if (check_zone(mem.tiny, addr) == 1) return ;
-    if (check_zone(mem.small, addr) == 1) return ;
+    pthread_mutex_lock(&mutex);
+    if (addr == NULL)
+    {
+        pthread_mutex_unlock(&mutex);
+        return ;
+    }
+    if (check_zone(mem.tiny, addr) == 1)
+    {
+        pthread_mutex_unlock(&mutex);
+        return ;
+    }
+    if (check_zone(mem.small, addr) == 1)
+    {
+        pthread_mutex_unlock(&mutex);
+        return ;
+    }
     for (struct alloc_t *alloc = mem.large; alloc != NULL; alloc = alloc->next)
     {
         if (addr == alloc->addr)
         {
             dealloc_alloc(&mem.large, alloc);
+            pthread_mutex_unlock(&mutex);
             return ;
         }
     }
+    pthread_mutex_unlock(&mutex);
     abort();
     // dealloc(addr, 1);
 }

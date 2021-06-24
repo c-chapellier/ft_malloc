@@ -23,6 +23,7 @@ void show_alloc_mem_hex()
 {
     int i;
 
+    pthread_mutex_lock(&mutex);
     printf(MAGENTA "\nTINY : %p\n", mem.tiny);
     i = 0;
     for (struct zone_t *zone = mem.tiny; zone != NULL; zone = zone->next)
@@ -54,4 +55,5 @@ void show_alloc_mem_hex()
         hexdump(alloc->addr, alloc->nbytes_used, "\t\t", SHOW_ALLOC_MEM_EX_STANDARD);
     }
     printf("Total : %zu bytes\n\n" RESET, mem.nbytes_tot);
+    pthread_mutex_unlock(&mutex);
 }

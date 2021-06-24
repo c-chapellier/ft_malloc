@@ -4,6 +4,7 @@ void show_alloc_mem_hist()
 {
     size_t i = 0, nbytes_tot_allocated = 0;
 
+    pthread_mutex_lock(&mutex);
     printf(MAGENTA "\nALLOCATION_HYSTORY\n");
     for (struct alloc_t *alloc = mem.hist; alloc != NULL; alloc = alloc->next)
     {
@@ -12,4 +13,5 @@ void show_alloc_mem_hist()
         ++i;
     }
     printf("Total : %zu bytes\n\n" RESET, nbytes_tot_allocated);
+    pthread_mutex_unlock(&mutex);
 }

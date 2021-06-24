@@ -28,7 +28,8 @@ static int check_zone(struct zone_t *first, void *addr, size_t size)
 void *realloc(void *ptr, size_t size)
 {
     int rc;
-
+    
+    pthread_mutex_lock(&mutex);
     rc = check_zone(mem.tiny, ptr, size);
     if (rc == ENOUGH_SPACE)
         return ptr;
@@ -50,11 +51,14 @@ void *realloc(void *ptr, size_t size)
                     alloc->nbytes_used = size;
                     return ptr;
                 }
+                rc = NOT_ENOUGH_SPACE;
                 break ;
             }
         }
     }
     if (rc == NOT_FOUND)
         abort();
+    pthread_mutex_unlock(&mutex);
+    free(ptr);
     return malloc(size);
 }

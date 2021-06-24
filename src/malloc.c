@@ -3,9 +3,13 @@
 struct mem_t mem;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+int nbytes_zones_alloc = 0;
+int nbytes_allocs_alloc = 0;
+int nbytes_real_alloc = 0;
+
 #define REAL_SIZE(size) (size * MARGIN > size + MIN_MARGIN) ? size * MARGIN : size + MIN_MARGIN
 
-static void *alloc(size_t size)
+static void *alloc(size_t size, int flag)
 {
     void *addr;
 
@@ -15,6 +19,12 @@ static void *alloc(size_t size)
         perror("mmap");
         exit(1);
     }
+    if (flag == 0)
+        nbytes_zones_alloc += size;
+    if (flag == 1)
+        nbytes_allocs_alloc += size;
+    if (flag == 2)
+        nbytes_real_alloc += size;
     return addr;
 }
 
@@ -23,7 +33,7 @@ static void expand_zone(struct zone_t **zone, int nzones, size_t size)
     void *addr;
     struct zone_t *tmp;
 
-    addr = alloc(nzones * sizeof (struct zone_t));
+    addr = alloc(nzones * sizeof (struct zone_t), 0);
     if (*zone == NULL)
     {
         *zone = addr;
@@ -40,7 +50,7 @@ static void expand_zone(struct zone_t **zone, int nzones, size_t size)
     for (int i = 0; i < nzones; ++i)
     {
         tmp->next = i == nzones - 1 ? NULL : addr + (i + 1) * sizeof (struct zone_t);
-        tmp->addr = alloc(size);
+        tmp->addr = alloc(size, 2);
         tmp->nbytes_used = 0;
         tmp->nbytes_allocated = size;
         tmp->alloc = NULL;
@@ -50,21 +60,21 @@ static void expand_zone(struct zone_t **zone, int nzones, size_t size)
 
 static void init()
 {
-    size_t N = ZONE_N * (ZONE_N * MARGIN > ZONE_N + MIN_MARGIN ? ZONE_N * MARGIN : ZONE_N + MIN_MARGIN);
-    size_t M = ZONE_M * (ZONE_M * MARGIN > ZONE_M + MIN_MARGIN ? ZONE_M * MARGIN : ZONE_M + MIN_MARGIN);
+    size_t N = 100 * (ZONE_N * MARGIN > ZONE_N + MIN_MARGIN ? ZONE_N * MARGIN : ZONE_N + MIN_MARGIN);
+    size_t M = 100 * (ZONE_M * MARGIN > ZONE_M + MIN_MARGIN ? ZONE_M * MARGIN : ZONE_M + MIN_MARGIN);
     size_t pagesize = getpagesize();
 
     N = pagesize * ((N / pagesize) + 1);
     M = pagesize * ((M / pagesize) + 1);
-    expand_zone(&mem.tiny, 3, N);
-    expand_zone(&mem.small, 3, M);
+    expand_zone(&mem.tiny, 1, N);
+    expand_zone(&mem.small, 1, M);
 }
 
 static void *create_alloc(void *addr, size_t size, void *next)
 {
     struct alloc_t *new;
    
-    new = alloc(sizeof (struct alloc_t));
+    new = alloc(sizeof (struct alloc_t), 1);
     new->addr = addr;
     new->nbytes_used = 0;
     new->nbytes_allocated = size;
@@ -105,7 +115,7 @@ static void *create_alloc_in_zone(struct zone_t *first_zone, size_t size)
             }
         }
     }
-    expand_zone(&first_zone, 3, first_zone->nbytes_allocated); // &first_zone is not updating the real first_zone but is not updated beacause != NULL
+    expand_zone(&first_zone, 1, first_zone->nbytes_allocated); // &first_zone is not updating the real first_zone but is not updated beacause != NULL
     return create_alloc_in_zone(first_zone, size); // same here
 }
 
@@ -113,6 +123,7 @@ void *malloc(size_t size)
 {
     void *addr;
 
+    // printf("hello -----------------------------------------\n");
     pthread_mutex_lock(&mutex);
     if (mem.tiny == NULL && mem.small == NULL)
         init();
@@ -123,7 +134,7 @@ void *malloc(size_t size)
     else
     {
         size *= MARGIN;
-        addr = alloc(size);
+        addr = alloc(size, 2);
         if (mem.large == NULL)
             mem.large = create_alloc(addr, size, NULL);
         else

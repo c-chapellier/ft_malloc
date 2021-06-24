@@ -4,6 +4,7 @@ void show_alloc_mem()
 {
     int i;
 
+    pthread_mutex_lock(&mutex);
     printf(MAGENTA "\nTINY : %p\n", mem.tiny);
     i = 0;
     for (struct zone_t *zone = mem.tiny; zone != NULL; zone = zone->next)
@@ -32,4 +33,6 @@ void show_alloc_mem()
         printf("\t%p - %p : %8zu bytes\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
     }
     printf("Total : %zu bytes\n\n" RESET, mem.nbytes_tot);
+    printf("%d %d %d\n", nbytes_zones_alloc, nbytes_allocs_alloc, nbytes_real_alloc);
+    pthread_mutex_unlock(&mutex);
 }

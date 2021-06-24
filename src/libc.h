@@ -20,10 +20,10 @@
 #define CYAN        "\e[0;36m"
 #define WHITE       "\e[0;37m"
 
-#define MARGIN      1.2 // allocate 20% more than requested
-#define MIN_MARGIN  50 // allocate minimum 50 bytes more than requested
+#define MARGIN      1 // allocate 20% more than requested
+#define MIN_MARGIN  0 // allocate minimum 50 bytes more than requested
 #define ZONE_N      100
-#define ZONE_M      1000
+#define ZONE_M      3000
 
 #define SHOW_ALLOC_MEM_EX_QUIET     0x01
 #define SHOW_ALLOC_MEM_EX_STANDARD  0x02
@@ -57,6 +57,11 @@ struct mem_t
 };
 
 extern struct mem_t mem;
+extern pthread_mutex_t mutex;
+
+extern int nbytes_zones_alloc;
+extern int nbytes_allocs_alloc;
+extern int nbytes_real_alloc;
 
 void	free(void *ptr);
 void	*malloc(size_t size);
