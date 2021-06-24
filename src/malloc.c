@@ -1,7 +1,9 @@
 #include "libc.h"
 
 struct mem_t mem;
-// pthread_mutex_t mutex;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+#define REAL_SIZE(size) (size * MARGIN > size + MIN_MARGIN) ? size * MARGIN : size + MIN_MARGIN
 
 static void *alloc(size_t size)
 {
@@ -52,7 +54,6 @@ static void init()
     size_t M = ZONE_M * (ZONE_M * MARGIN > ZONE_M + MIN_MARGIN ? ZONE_M * MARGIN : ZONE_M + MIN_MARGIN);
     size_t pagesize = getpagesize();
 
-    // pthread_mutex_init(&mutex, NULL);
     N = pagesize * ((N / pagesize) + 1);
     M = pagesize * ((M / pagesize) + 1);
     expand_zone(&mem.tiny, 3, N);
@@ -66,7 +67,7 @@ static void *create_alloc(void *addr, size_t size, void *next)
     new = alloc(sizeof (struct alloc_t));
     new->addr = addr;
     new->nbytes_used = 0;
-    new->nbytes_allocated = (size * MARGIN > size + MIN_MARGIN) ? size * MARGIN : size + MIN_MARGIN;
+    new->nbytes_allocated = size;
     new->next = next;
     mem.nbytes_tot += new->nbytes_allocated;
     return new;
@@ -112,16 +113,17 @@ void *malloc(size_t size)
 {
     void *addr;
 
+    pthread_mutex_lock(&mutex);
     if (mem.tiny == NULL && mem.small == NULL)
         init();
-    // pthread_mutex_lock(&mutex);
     if (size < ZONE_N)
-        addr = create_alloc_in_zone(mem.tiny, size);
+        addr = create_alloc_in_zone(mem.tiny, REAL_SIZE(size));
     else if (size < ZONE_M)
-        addr = create_alloc_in_zone(mem.small, size);
+        addr = create_alloc_in_zone(mem.small, REAL_SIZE(size));
     else
     {
-        addr = alloc(size * MARGIN);
+        size *= MARGIN;
+        addr = alloc(size);
         if (mem.large == NULL)
             mem.large = create_alloc(addr, size, NULL);
         else
@@ -136,7 +138,6 @@ void *malloc(size_t size)
             }
         }
     }
-    // pthread_mutex_unlock(&mutex);
-    // pthread_mutex_destroy(&);
+    pthread_mutex_unlock(&mutex);
     return addr;
 }

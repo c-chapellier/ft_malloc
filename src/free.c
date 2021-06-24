@@ -1,5 +1,22 @@
 #include "libc.h"
 
+static void add_to_hist(struct alloc_t *alloc)
+{
+    struct alloc_t *tmp;
+
+    alloc->next = NULL;
+    alloc->prev = NULL;
+    if (mem.hist == NULL)
+    {
+        mem.hist = alloc;
+        return ;
+    }
+    tmp = mem.hist;
+    while (tmp->next != NULL)
+        tmp = tmp->next;
+    tmp->next = alloc;
+}
+
 static void dealloc(void *addr, size_t size)
 {
     int rc;
@@ -20,6 +37,7 @@ static void dealloc_alloc_from_zone(struct zone_t *zone, struct alloc_t *alloc)
         alloc->prev->next = alloc->next;
     zone->nbytes_used -= alloc->nbytes_allocated;
     mem.nbytes_tot -= alloc->nbytes_allocated;
+    add_to_hist(alloc);
 }
 
 static void dealloc_alloc(struct alloc_t **first, struct alloc_t *alloc)
@@ -30,6 +48,7 @@ static void dealloc_alloc(struct alloc_t **first, struct alloc_t *alloc)
         alloc->prev->next = alloc->next;
     dealloc(alloc->addr, alloc->nbytes_allocated);
     mem.nbytes_tot -= alloc->nbytes_allocated;
+    add_to_hist(alloc);
 }
 
 static int check_zone(struct zone_t *first, void *addr)

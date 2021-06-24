@@ -53,6 +53,7 @@ struct mem_t
     struct zone_t   *small;
     struct alloc_t  *large;
     size_t          nbytes_tot;
+    struct alloc_t  *hist;
 };
 
 extern struct mem_t mem;
@@ -61,6 +62,7 @@ void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
 void    show_alloc_mem();
-void    show_alloc_mem_ex();
+void    show_alloc_mem_hex();
+void    show_alloc_mem_hist();
 
 #endif

@@ -8,10 +8,10 @@ void show_alloc_mem()
     i = 0;
     for (struct zone_t *zone = mem.tiny; zone != NULL; zone = zone->next)
     {
-        printf("\tZ[%d] : %p - %p : %8zu octets [%8zu used]\n", i, zone->addr, zone->addr + zone->nbytes_allocated, zone->nbytes_allocated, zone->nbytes_used);
+        printf("\tZ[%d] : %p - %p : %8zu bytes [%8zu used]\n", i, zone->addr, zone->addr + zone->nbytes_allocated, zone->nbytes_allocated, zone->nbytes_used);
         for (struct alloc_t *alloc = zone->alloc; alloc != NULL; alloc = alloc->next)
         {
-            printf("\t\t%p - %p : %zu octets\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
+            printf("\t\t%p - %p : %8zu bytes\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
         }
         ++i;
     }
@@ -19,17 +19,17 @@ void show_alloc_mem()
     i = 0;
     for (struct zone_t *zone = mem.small; zone != NULL; zone = zone->next)
     {
-        printf("\tZ[%d] : %p - %p : %8zu octets [%8zu used]\n", i, zone->addr, zone->addr + zone->nbytes_allocated, zone->nbytes_allocated, zone->nbytes_used);
+        printf("\tZ[%d] : %p - %p : %8zu bytes [%8zu used]\n", i, zone->addr, zone->addr + zone->nbytes_allocated, zone->nbytes_allocated, zone->nbytes_used);
         for (struct alloc_t *alloc = zone->alloc; alloc != NULL; alloc = alloc->next)
         {
-            printf("\t\t%p - %p : %zu octets\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
+            printf("\t\t%p - %p : %8zu bytes\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
         }
         ++i;
     }
     printf("LARGE : %p\n", mem.large);
     for (struct alloc_t *alloc = mem.large; alloc != NULL; alloc = alloc->next)
     {
-        printf("\t%p - %p : %zu octets\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
+        printf("\t%p - %p : %8zu bytes\n", alloc->addr, alloc->addr + alloc->nbytes_allocated, alloc->nbytes_allocated);
     }
-    printf("Total : %zu octets\n\n" RESET, mem.nbytes_tot);
+    printf("Total : %zu bytes\n\n" RESET, mem.nbytes_tot);
 }

@@ -124,14 +124,9 @@ static void test_malloc_n(const char *name, int size)
 
 	ft_str = malloc(size);
 	str = malloc(size);
-	if (str == NULL)
+	if (ft_str == NULL || str == NULL)
 	{
-		printf("real malloc failed\n");
-		exit(-1);
-	}
-	else if (ft_str == NULL)
-	{
-		printf(FAIL " %s%d: %s != %s\n", name, size, ft_str, str);
+		printf(FAIL " %s%d: NULL should not have returned NULL\n", name, size);
 		return ;
 	}
 
@@ -143,7 +138,7 @@ static void test_malloc_n(const char *name, int size)
 	ft_str[size - 1] = '\0';
 	str[size - 1] = '\0';
 
-    // show_alloc_mem_ex();
+    show_alloc_mem_hex();
 
 	if (strcmp(ft_str, str) != 0)
 	{
@@ -154,7 +149,7 @@ static void test_malloc_n(const char *name, int size)
 	else
 	{
 		printf(SUCCESS " %s%d : %.20s == %.20s\n", name, size, ft_str, str);
-		// free(ft_str);
+		free(ft_str);
 		free(str);
 	}
 }
@@ -168,7 +163,7 @@ void test_malloc_1(const char *name, int size)
 	test_malloc_n(name, 300);
 	test_malloc_n(name, 2000);
 	test_malloc_n(name, 3000);
-    // show_alloc_mem_ex();
+    show_alloc_mem_hist();
 }
 
 void test_malloc_2(const char *name, int n)
@@ -309,7 +304,7 @@ void test_realloc_1(const char *name, int n)
    	str2 = (char *) realloc(str, 25);
 	if (str2 != str)
 	{
-   		printf(FAIL " %s: %p != %p -> a small change realloc memory\n", name, str, str2);
+   		printf(WARNING " %s: %p != %p -> a small change realloc memory\n", name, str, str2);
 		free(str2);
 		return ;
 	}

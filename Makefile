@@ -2,7 +2,8 @@ SRCS =	src/malloc.c \
 		src/realloc.c \
 		src/free.c \
 		src/show_alloc_mem.c \
-		src/show_alloc_mem_ex.c
+		src/show_alloc_mem_hex.c \
+		src/show_alloc_mem_hist.c
 
 OBJS = ${SRCS:.c=.o}
 
